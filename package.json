@@ -6,6 +6,6 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "node-schedule": "^2.1.1"
+
   }
 }
