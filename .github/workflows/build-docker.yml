@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: thepolicylab-projectportals/project-portal-email-service
+  IMAGE_NAME: thepolicylab-projectportals/projectportal-email-service
 
 jobs:
   build_and_push:
