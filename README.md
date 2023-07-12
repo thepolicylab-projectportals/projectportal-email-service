@@ -16,7 +16,7 @@ If running either command results in the following error message `No resources f
 
 #### Check Namespace
 
-To check which namespace you are in, use ```kubens```, make sure you are in the `tpl-projectportal` namespace in either cluster.
+Make sure you are in the `tpl-projectportal` namespace (in either cluster). Use `kubens` to see your current namespace and `kubens tpl-projectportal` to switch to the `tpl-projectportal` namespace.
 
 #### Cronjobs
 The Project Portal email service is a cronjob that is scheduled to run every ... , to check the cronjobs, use ```kubectl get cronjobs```
