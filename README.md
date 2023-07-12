@@ -56,7 +56,12 @@ A Kubernetes deployment is a way to define and manage the deployment of our emai
  imagePullSecrets:
             - name: regcred
 ```
-Referencing a code snippet from cronjob.yml, the `regcred` secret is used as an image pull secret. An image pull secret is used to authenticate a Kubeneretes cluster to pull images from a container registry, in our case: `ghcr.io`
 
+Referencing a code snippet from cronjob.yml, the `regcred` secret is used as an image pull secret. An image pull secret is used to authenticate a Kubeneretes cluster to pull images from a container registry, in our case: `ghcr.io`. The`regcred` secret is a Personal Access Token generated from Github that has `read`, `write`, and `delete` powers.  
 
+The following command was used to create the regcred secret 
+
+```
+kubectl create secret docker-registry regcred --docker-server=ghcr.io --docker-username=USERNAME --docker-password=PERSONAL_ACCESS_TOKEN
+```
 
