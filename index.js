@@ -1,7 +1,3 @@
-const schedule = require("node-schedule")
 
-console.log("test")
+console.log("Hello World!")
 
-schedule.scheduleJob('*/1 * * * *', () => {
-  console.log('hello world')
-})
