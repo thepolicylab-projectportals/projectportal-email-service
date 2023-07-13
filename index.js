@@ -6,10 +6,14 @@ require('dotenv').config()
 async function fetchFilesFromRepo() {
   //will be passed into script
   const repoOwner = process.env.repoOwner
+  //const repoOwner = 'thepolicylab-projectportals'
+
   //will be passed into script
   const repoName = process.env.repoName
+  //const repoName = 'example-content'
+
   const folderPath = 'content/project'
-  const accessToken = ''
+  const accessToken = process.env.PAT
 
   const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?ref=add-example-projects&media=raw`
 
@@ -29,19 +33,16 @@ async function fetchFilesFromRepo() {
 
       const fileContentArray = await Promise.all(fileContent)
 
+      let results = []
+
       for (let i = 0; i < response.data.length; i++) {
         const file = response.data[i]
         const fileContent = fileContentArray[i]
-
-        console.log(file.name)
-        console.log("created: " + fileContent.created)
-        console.log("endDate: " + fileContent.endDate)
-        console.log("startDate: " + fileContent.startDate)
-        console.log("status: " + fileContent.status)
-        console.log("_______________")
+        results.push(fileContent)
       }
+      console.log(results)
     } else {
-      console.log('No files found in the folder.')
+      console.log(`No files found in the folder ${repoOwner}/${repoName}`)
     }
   } catch (error) {
     console.error('Error:', error)
