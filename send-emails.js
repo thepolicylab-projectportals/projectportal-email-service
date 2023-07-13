@@ -4,7 +4,7 @@ const { document } = (new JSDOM(`...`)).window;
 const nodemailer = require("nodemailer");
 
 export function sendStaleMail(jsonArr, to) {
-    // all emails need
+
     const today = new Date();
     const greetingDiv = document.createElement("div");
     const projectDiv =  document.createElement("div");
@@ -63,16 +63,21 @@ export function sendStaleMail(jsonArr, to) {
 
     addElement("Hello!", greetingDiv);
     greetingDiv.append(document.createElement("br"));
-    addElement("Please reach out to the appropriate contacts for the following projects and confirm that the information within its CMS site is not out-of-date.", greetingDiv);
-    greetingDiv.append(document.createElement("br"));
-    let body = `${greetingDiv.outerHTML}${projectDiv.outerHTML}${endingDiv.outerHTML}`
 
+    let body = `${greetingDiv.outerHTML}${projectDiv.outerHTML}${endingDiv.outerHTML}`
+    if (numberStales > 0){
+        addElement("Please reach out to the appropriate contacts for the following projects and confirm that the information within its CMS site is not out-of-date.", greetingDiv);
+        greetingDiv.append(document.createElement("br"));
+    } else {
+        addElement("All good here! No projects seem to be out-of-date.", greetingDiv);
+        greetingDiv.append(document.createElement("br"));
+    }
     sendNodeMail(to, "Project Portal Update: Out of Date Projects", body);
 
 }
 
 //function for new projs
-export function sendNewMail(jsonArr, to) {
+export function sendNewMail(jsonArr, to, time) {
     // all emails need
     const greetingDiv = document.createElement("div");
     const projectDiv =  document.createElement("div");
@@ -83,21 +88,30 @@ export function sendNewMail(jsonArr, to) {
     dateLastSent.setTime(dateLastSent.getTime() - dateOffset);
 
     const newProjects = jsonArr.filter(proj => Date.parse(proj.created) < dateLastSent);
+    let numberNew = 0;
 
-    for (let i = 0; i < (newProjects).length; i++) {
+    for (let i = 0; i <= (newProjects).length; i++) {
         addElement(`Project Title: ${newProjects[i].title}`, projectDiv);
         addElement(`Contact Name: ${newProjects[i].mainContact.name}`, projectDiv);
         addElement(`Contact Email: ${newProjects[i].mainContact.email}`, projectDiv);
         addElement(`URL: ${site}/${newProjects[i].slug}`, projectDiv);
         addElement(`Possible Problems: ${problems.join(' ')}`, projectDiv);
         projectDiv.append(document.createElement("br"));
+        numberNew++;
 
     }
 
     addElement("Hello!", greetingDiv);
     greetingDiv.append(document.createElement("br"));
-    addElement("The following projects have recently been added to the project portal.", greetingDiv);
-    greetingDiv.append(document.createElement("br"));
+    if (numberNew > 0){
+        addElement(`Within the past ${time} days, the following projects have recently been added to the project portal.`, greetingDiv);
+        greetingDiv.append(document.createElement("br"));
+
+    } else {
+        addElement(`No new projects have been added to the project portal in the past ${time} days.`);
+        greetingDiv.append(document.createElement("br"));
+    }
+
     let body = `${greetingDiv.outerHTML}${projectDiv.outerHTML}${endingDiv.outerHTML}`
 
     sendNodeMail(to, "Project Portal Update: New Projects", body);
