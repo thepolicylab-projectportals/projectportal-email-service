@@ -72,13 +72,12 @@ export function sendStaleMail(jsonArr, to) {
         addElement("All good here! No projects seem to be out-of-date.", greetingDiv);
         greetingDiv.append(document.createElement("br"));
     }
-    sendNodeMail(to, "Project Portal Update: Out of Date Projects", body);
+    sendNodeMail(to, "Project Portal Update: Out of Date Projects", body).catch(console.error);
 
 }
 
-//function for new projs
 export function sendNewMail(jsonArr, to, time) {
-    // all emails need
+
     const greetingDiv = document.createElement("div");
     const projectDiv =  document.createElement("div");
     const endingDiv =  document.createElement("div");
@@ -98,7 +97,6 @@ export function sendNewMail(jsonArr, to, time) {
         addElement(`Possible Problems: ${problems.join(' ')}`, projectDiv);
         projectDiv.append(document.createElement("br"));
         numberNew++;
-
     }
 
     addElement("Hello!", greetingDiv);
@@ -112,12 +110,10 @@ export function sendNewMail(jsonArr, to, time) {
         greetingDiv.append(document.createElement("br"));
     }
 
-    let body = `${greetingDiv.outerHTML}${projectDiv.outerHTML}${endingDiv.outerHTML}`
+    let body = `${greetingDiv.outerHTML}${projectDiv.outerHTML}${endingDiv.outerHTML}`;
 
-    sendNodeMail(to, "Project Portal Update: New Projects", body);
+    sendNodeMail(to, "Project Portal Update: New Projects", body).catch(console.error);
 }
-
-// return to, subject, body
 
 async function sendNodeMail(to, subject, body){
 
@@ -141,12 +137,15 @@ async function sendNodeMail(to, subject, body){
         });
     }
 
-    await transporter.sendMail({
+    let info = await transporter.sendMail({
         from: '"Brown Policy Lab" <no-reply@brown.edu>', // sender address
         to: to, // list of receivers
         subject: subject, // Subject line
         html: body, // html body
     });
+
+    console.log("Message sent: %s", info.messageId);
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 
 }
 
