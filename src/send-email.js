@@ -14,10 +14,8 @@ export async function runEmailService() {
 
 async function fetchFilesFromRepo() {
   const repoOwner = process.env.repoOwner
-  //const repoOwner = 'thepolicylab-projectportals'
   const repoName = process.env.repoName
- // const repoName = 'example-content'
-
+  const folderPath = 'content/project'
   const accessToken = process.env.PAT
   const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?ref=add-example-projects&media=raw`
 
