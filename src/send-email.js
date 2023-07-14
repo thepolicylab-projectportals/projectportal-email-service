@@ -2,19 +2,25 @@ const axios = require('axios')
 require('dotenv').config()
 
 
+export async function runEmailService() {
+  //iterate through TPL site, curl site for data and return array of all projects
+  const projects = fetchFilesFromRepo()
+  //identify stale projects, create html body of email
+
+  //send out newly constructed email from previous step to designated contact
+
+
+}
 
 async function fetchFilesFromRepo() {
-  //will be passed into script
-  const repoOwner = process.env.repoOwner
-  //const repoOwner = 'thepolicylab-projectportals'
-
-  //will be passed into script
-  const repoName = process.env.repoName
-  //const repoName = 'example-content'
+  //const repoOwner = process.env.repoOwner
+  const repoOwner = 'thepolicylab-projectportals'
+  //const repoOwner = process.env.repoOwner
+  const repoName = 'example-content'
 
   const folderPath = 'content/project'
-  const accessToken = process.env.PAT
-
+ // const accessToken = process.env.PAT
+  const accessToken = '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'
   const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?ref=add-example-projects&media=raw`
 
   try {
@@ -49,6 +55,4 @@ async function fetchFilesFromRepo() {
   }
 }
 
-
-fetchFilesFromRepo().then(r => console.log("done!"))
 
