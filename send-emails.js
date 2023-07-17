@@ -1,8 +1,9 @@
+import {subDays, parse} from "date-fns";
+
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const { document } = (new JSDOM(`...`)).window;
 const nodemailer = require("nodemailer");
-
 export function sendStaleMail(jsonArr, to) {
 
     const today = new Date();
@@ -15,10 +16,10 @@ export function sendStaleMail(jsonArr, to) {
     for (let i = 0; i < (jsonArr).length; i++) {
 
         let status = jsonArr[i].status;
-        let closeDate = Date.parse(jsonArr[i].opportunityCloses);
-        let startDate = Date.parse(jsonArr[i].startDate);
-        let endDate = Date.parse(jsonArr[i].endDate);
-        let modifyDate = Date.parse(jsonArr[i].lastModified);
+        let closeDate = parse(jsonArr[i].opportunityCloses);
+        let startDate = parse(jsonArr[i].startDate);
+        let endDate = parse(jsonArr[i].endDate);
+        let modifyDate = parse(jsonArr[i].lastModified);
 
         let problems = [];
 
@@ -53,7 +54,7 @@ export function sendStaleMail(jsonArr, to) {
             addElement(`Project Title: ${jsonArr[i].title}`, projectDiv);
             addElement(`Contact Name: ${jsonArr[i].mainContact.name}`, projectDiv);
             addElement(`Contact Email: ${jsonArr[i].mainContact.email}`, projectDiv);
-            addElement(`URL: ${site}/${jsonArr[i].slug}`, projectDiv);
+            addElement(`URL: ${site}/${jsonArr[i].slug}`, projectDiv); // SLUG is not in the JSON file!! Use fileName instead
             addElement(`Possible Problems: ${problems.join(' ')}`, projectDiv);
             projectDiv.append(document.createElement("br"));
             numberStales++;
@@ -63,8 +64,7 @@ export function sendStaleMail(jsonArr, to) {
 
     addElement("Hello!", greetingDiv);
     greetingDiv.append(document.createElement("br"));
-
-    let body = `${greetingDiv.outerHTML}${projectDiv.outerHTML}${endingDiv.outerHTML}`
+    
     if (numberStales > 0){
         addElement("Please reach out to the appropriate contacts for the following projects and confirm that the information within its CMS site is not out-of-date.", greetingDiv);
         greetingDiv.append(document.createElement("br"));
@@ -72,7 +72,8 @@ export function sendStaleMail(jsonArr, to) {
         addElement("All good here! No projects seem to be out-of-date.", greetingDiv);
         greetingDiv.append(document.createElement("br"));
     }
-    sendNodeMail(to, "Project Portal Update: Out of Date Projects", body).catch(console.error);
+
+    return `${greetingDiv.outerHTML}${projectDiv.outerHTML}${endingDiv.outerHTML}`;
 
 }
 
@@ -81,12 +82,8 @@ export function sendNewMail(jsonArr, to, time) {
     const greetingDiv = document.createElement("div");
     const projectDiv =  document.createElement("div");
     const endingDiv =  document.createElement("div");
-
-    const dateOffset = (24*60*60*1000) * time;
-    let dateLastSent = new Date();
-    dateLastSent.setTime(dateLastSent.getTime() - dateOffset);
-
-    const newProjects = jsonArr.filter(proj => Date.parse(proj.created) < dateLastSent);
+    const dateLastSent = subDays(parse(proj.created), time);
+    const newProjects = jsonArr.filter(proj => parse(proj.created) < dateLastSent);
     let numberNew = 0;
 
     for (let i = 0; i <= (newProjects).length; i++) {
@@ -110,9 +107,7 @@ export function sendNewMail(jsonArr, to, time) {
         greetingDiv.append(document.createElement("br"));
     }
 
-    let body = `${greetingDiv.outerHTML}${projectDiv.outerHTML}${endingDiv.outerHTML}`;
-
-    sendNodeMail(to, "Project Portal Update: New Projects", body).catch(console.error);
+    return `${greetingDiv.outerHTML}${projectDiv.outerHTML}${endingDiv.outerHTML}`;
 }
 
 async function sendNodeMail(to, subject, body){
