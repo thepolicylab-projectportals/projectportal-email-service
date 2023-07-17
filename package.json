@@ -1,14 +1,22 @@
 {
   "name": "projectportal-email-service",
   "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "package": "rollup -c",
+    "pack": "npm run package",
+    "prestart": "npm run package",
+    "start": "node ./lib/index.js"
   },
   "dependencies": {
     "axios": "^1.4.0",
+    "date-fns": "^2.30.0",
     "dotenv": "^16.3.1",
-    "node-schedule": "^2.1.1",
-    "yargs": "^17.7.2"
+    "jsdom": "^22.1.0",
+    "nodemailer": "^6.9.3"
+  },
+  "devDependencies": {
+    "@rollup/plugin-babel": "^6.0.3",
+    "rollup": "^3.25.3"
   }
 }
