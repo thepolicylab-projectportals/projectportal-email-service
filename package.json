@@ -6,6 +6,9 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "node-schedule": "^2.1.1"
+    "axios": "^1.4.0",
+    "dotenv": "^16.3.1",
+    "node-schedule": "^2.1.1",
+    "yargs": "^17.7.2"
   }
 }
