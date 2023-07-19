@@ -13,8 +13,7 @@ export async function runEmailService() {
   //identify stale projects, create html body of email
 
   //send out newly constructed email from previous step to designated contact
-  const emails = await fetchEmailsFromRepo()
-
+  const emails = await fetchEmailsFromRepo(repoOwner, repoName, accessToken)
 }
 
 
