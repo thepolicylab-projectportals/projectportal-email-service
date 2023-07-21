@@ -93,7 +93,10 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
 
       const projectsContent = projectsResponse.data.map(file => {
         const fileUrl = file.download_url
-        return axios.get(fileUrl).then(response => response.data)
+        return axios.get(fileUrl).then(response => ({
+          ...response.data,
+          slug: file.name.replace(/\.json$/, ''),
+        }))
       })
       const projectsContentArray = await Promise.all(projectsContent)
 
