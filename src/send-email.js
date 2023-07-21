@@ -101,8 +101,8 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
 
       for (let i = 0; i < projectsResponse.data.length; i++) {
         const projectContent = projectsContentArray[i]
-        const contactObj = projectContent.mainContact
-        projectContent.mainContact = contactsMap.get(contactObj)
+        const contactSlug = projectContent.mainContact
+        projectContent.mainContact = contactsMap.get(contactSlug)
         projectResults.push(projectContent)
       }
 
