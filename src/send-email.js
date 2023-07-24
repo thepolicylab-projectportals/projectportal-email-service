@@ -120,9 +120,9 @@ export function filterStale(projects) { // projects is an array of objects
   return filtered;
 }
 
-export function filterNew(projects, time){ // projects is an array of objects; time is the number of days to search back from day of email
-  const filtered = projects.filter(project => parse(project.created) < subDays(parse(project.created), time));
-  return filtered;
+export function filterNew(projects, numberOfDaysBack){
+  // projects is an array of objects; numberOfDaysBack is the number of days to search back from day of email
+  return projects.filter(project => parse(project.created) < subDays(parse(project.created), numberOfDaysBack));
 }
 export function formatEmail(projects, greeting){ // filtered list of projects, json
   let dom = new JSDOM("<!DOCTYPE html>"),
@@ -156,6 +156,13 @@ export function formatEmail(projects, greeting){ // filtered list of projects, j
   return dom.serialize();
 }
 
+function addElement(text, div) {
+
+  const newContent = document.createElement("p");
+  newContent.innerHTML = text;
+  div.appendChild(newContent);
+}
+
 export async function sendNodeMail(to, subject, body){
 
   // This smtp was set up by Brown OIT unix team -- this will only work on Brown internal network (such as BKE)
@@ -187,15 +194,5 @@ export async function sendNodeMail(to, subject, body){
 
   console.debug("Message sent: %s", info.messageId);
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
+  console.debug("Full info: \n", JSON.stringify(info));
 }
-
-function addElement(text, div) {
-
-  const newContent = document.createElement("p");
-  newContent.innerHTML = text;
-  div.appendChild(newContent);
-}
-
-
-
