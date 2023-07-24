@@ -1,4 +1,5 @@
 import babel from "@rollup/plugin-babel"
+import resolve from '@rollup/plugin-node-resolve';
 
 const config = {
   input: "src/index.js",
@@ -6,7 +7,7 @@ const config = {
     file: "lib/index.js",
     format: "cjs"
   },
-  plugins: [babel({ babelHelpers: 'bundled' })]
+  plugins: [babel({ babelHelpers: 'bundled' }), resolve()]
 }
 
 export default config
