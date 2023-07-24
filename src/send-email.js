@@ -19,12 +19,12 @@ export async function runEmailService() {
 
 async function fetchEmailsFromRepo(repoOwner, repoName, accessToken) {
 
-  const getEmailsPath = 'content/config/email-service-contacts.json';
+  const getEmailsPath = 'content/config/email-service-contacts.json'
   const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents`
 
   try {
 
-    const emailsUrl = `${apiUrl}/${getEmailsPath}?ref=add-example-projects&media=raw`;
+    const emailsUrl = `${apiUrl}/${getEmailsPath}?ref=add-example-projects&media=raw`
     const response = await axios.get(emailsUrl, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -32,9 +32,9 @@ async function fetchEmailsFromRepo(repoOwner, repoName, accessToken) {
       }
     })
 
-    const downloadEmailsUrl = response.data.download_url;
-    const downloadEmailsResponse = await axios.get(downloadEmailsUrl);
-    return downloadEmailsResponse.data.contacts
+    const downloadEmailsUrl = response.data.download_url
+    const downloadEmailsResponse = await axios.get(downloadEmailsUrl)
+    return downloadEmailsResponse.data.contacts.map(contact => contact.email)
 
   } catch (error) {
     console.error('Error with fetchEmailsFromRepo():', error)
@@ -45,13 +45,13 @@ async function fetchEmailsFromRepo(repoOwner, repoName, accessToken) {
 async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
 
   const getProjectsPath = 'content/project'
-  const getContactsPath = 'content/contact';
+  const getContactsPath = 'content/contact'
   const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents`
 
   try {
 
     const projectsUrl = `${apiUrl}/${getProjectsPath}?ref=add-example-projects&media=raw`
-    const contactsUrl = `${apiUrl}/${getContactsPath}?ref=add-example-projects&media=raw`;
+    const contactsUrl = `${apiUrl}/${getContactsPath}?ref=add-example-projects&media=raw`
 
     const [projectsResponse, contactsResponse] = await Promise.all([
       axios.get(projectsUrl, {
@@ -74,22 +74,22 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
       const contactsContent = contactsResponse.data
         .filter(file => file.name.endsWith('.json'))
         .map(file => {
-          const fileUrl = file.download_url;
-          return axios.get(fileUrl).then(response => response.data);
-        });
+          const fileUrl = file.download_url
+          return axios.get(fileUrl).then(response => response.data)
+        })
 
-      const contactsContentArray = await Promise.all(contactsContent);
+      const contactsContentArray = await Promise.all(contactsContent)
 
       const contactsMap = new Map()
       let index = 0
 
       contactsResponse.data.forEach((file) => {
         if (file.name.endsWith('.json')) {
-          const fileName = file.name;
-          const fileData = contactsContentArray[index++];
-          contactsMap.set(fileName.replace(/\.json$/, ''), fileData);
+          const fileName = file.name
+          const fileData = contactsContentArray[index++]
+          contactsMap.set(fileName.replace(/\.json$/, ''), fileData)
         }
-      });
+      })
 
       const projectsContent = projectsResponse.data.map(file => {
         const fileUrl = file.download_url
