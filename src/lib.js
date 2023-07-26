@@ -33,7 +33,8 @@ export async function runEmailService() {
 
   //send out newly constructed email from previous step to designated contact
   const emails = await fetchEmailsFromRepo(repoOwner, repoName, accessToken)
-  await sendNodeMail(emails, `Project Portal Updates: ${process.env.site}'s ${process.env.emailType} Projects`, body);
+  const to = ["joshua_lu1@brown.edu"]
+  await sendNodeMail(to, `Project Portal Updates: ${process.env.site}'s ${process.env.emailType} Projects`, body);
 
 }
 

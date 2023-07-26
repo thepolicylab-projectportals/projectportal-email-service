@@ -1,4 +1,4 @@
-import { runEmailService } from "./send-email"
+import { runEmailService } from "./lib"
 
 
 runEmailService().then(() => console.log("Email script completed."))
