@@ -232,7 +232,8 @@ export function formatEmail(projects, greeting){ // filtered list of projects, j
     addElement(`Project Title: ${project.title}`, projectDiv)
     addElement(`Contact Name: ${project.mainContact.name}`, projectDiv)
     addElement(`Contact Email: ${project.mainContact.email}`, projectDiv)
-    addElement(`URL: ${site}/${project.slug}`, projectDiv)
+    const clickableProjectLink = `<a href=${site}/${project.slug}>${site}/${project.slug}</a>`
+    addElement(`URL: ${clickableProjectLink}`, projectDiv)
     addElement(`Possible Problems: ${project.problems.join(" ")}`, projectDiv)
     projectDiv.append(document.createElement("br"))
   })
