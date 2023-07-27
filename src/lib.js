@@ -6,7 +6,6 @@ const { JSDOM } = jsdom;
 const nodemailer = require("nodemailer");
 
 export async function runEmailService() {
-
   const repoOwner = process.env.repoOwner
   const repoName = process.env.repoName
   const accessToken = process.env.PAT
@@ -14,7 +13,7 @@ export async function runEmailService() {
   const projects = await fetchFilesFromRepo(repoOwner, repoName, accessToken)
   let filtered;
   let greeting;
-  // identify projects
+  // identify desired projects
   switch (process.env.emailType) {
     case "Stale":
       filtered = filterStale(projects);
@@ -29,8 +28,6 @@ export async function runEmailService() {
   // create body of email
   const body = formatEmail(filtered, greeting);
 
-  //identify stale projects, create html body of email
-
   //send out newly constructed email from previous step to designated contact
   const emails = await fetchEmailsFromRepo(repoOwner, repoName, accessToken)
   const to = ["joshua_lu1@brown.edu"]
@@ -40,13 +37,11 @@ export async function runEmailService() {
 
 
 async function fetchEmailsFromRepo(repoOwner, repoName, accessToken) {
-
   const getEmailsPath = 'content/config/email-service-contacts.json'
   const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents`
 
   try {
-
-    const emailsUrl = `${apiUrl}/${getEmailsPath}?ref=main&media=raw`
+    const emailsUrl = `${apiUrl}/${getEmailsPath}?ref=${process.env.branch}&media=raw`
     const response = await axios.get(emailsUrl, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -65,15 +60,13 @@ async function fetchEmailsFromRepo(repoOwner, repoName, accessToken) {
 }
 
 async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
-
   const getProjectsPath = 'content/project'
   const getContactsPath = 'content/contact'
   const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents`
 
   try {
-
-    const projectsUrl = `${apiUrl}/${getProjectsPath}?ref=main&media=raw`
-    const contactsUrl = `${apiUrl}/${getContactsPath}?ref=main&media=raw`
+    const projectsUrl = `${apiUrl}/${getProjectsPath}?ref=${process.env.branch}&media=raw`
+    const contactsUrl = `${apiUrl}/${getContactsPath}?ref=${process.env.branch}&media=raw`
 
     const [projectsResponse, contactsResponse] = await Promise.all([
       axios.get(projectsUrl, {
@@ -90,7 +83,6 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
       })
     ])
 
-
     if (Array.isArray(contactsResponse.data) && Array.isArray(projectsResponse.data)) {
 
       const contactsContent = contactsResponse.data
@@ -101,10 +93,8 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
         })
 
       const contactsContentArray = await Promise.all(contactsContent)
-
       const contactsMap = new Map()
       let index = 0
-
       contactsResponse.data.forEach((file) => {
         if (file.name.endsWith('.json')) {
           const fileName = file.name
@@ -123,7 +113,6 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
       const projectsContentArray = await Promise.all(projectsContent)
 
       let projectResults = []
-
       for (let i = 0; i < projectsResponse.data.length; i++) {
         const projectContent = projectsContentArray[i]
         const contactSlug = projectContent.mainContact
@@ -141,6 +130,7 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
   }
   return []
 }
+
 export function filterStale(projects) {
   const todayDate = new Date()
   const filtered = []
@@ -207,10 +197,11 @@ export function filterNew(projects, numberOfDaysBack){
   // projects is an array of objects; numberOfDaysBack is the number of days to search back from day of email
   return projects.filter(project => parse(project.created) < subDays(parse(project.created), numberOfDaysBack))
 }
+
 export function formatEmail(projects, greeting){ // filtered list of projects, json
 
-  function addElement(text, div) {
-    const newContent = document.createElement("p")
+  function addElement(text, div, type) {
+    const newContent = document.createElement(`${type}`)
     newContent.innerHTML = text
     div.appendChild(newContent)
   }
@@ -219,23 +210,29 @@ export function formatEmail(projects, greeting){ // filtered list of projects, j
     document = dom.window.document
   const site = process.env.site
   const greetingDiv = document.createElement("div")
-  addElement("Hello,", greetingDiv)
-  greetingDiv.append(document.createElement("br"))
-  addElement(greeting, greetingDiv)
-  document.body.append(greetingDiv)
 
+  //Greeting
+  addElement("Hello,", greetingDiv, 'p')
+  addElement(greeting, greetingDiv, 'p')
+  document.body.append(greetingDiv)
+  document.body.append(document.createElement("br"))
+
+  //Project title
   const projectDiv = document.createElement("div")
-  addElement("<h2>Projects</h2>", projectDiv)
+  addElement("Projects", projectDiv, 'h2')
   if (projects.length === 0){
-    addElement("No projects found", projectDiv)
+    //No projects text
+    addElement("No projects found", projectDiv, 'p')
   }
+
+  //Projects content
   projects.forEach((project) => {
-    addElement(`Project Title: ${project.title}`, projectDiv)
-    addElement(`Contact Name: ${project.mainContact.name}`, projectDiv)
-    addElement(`Contact Email: ${project.mainContact.email}`, projectDiv)
+    addElement(`Project Title: ${project.title}`, projectDiv, 'h4')
+    addElement(`Contact Name: ${project.mainContact.name}`, projectDiv, 'p')
+    addElement(`Contact Email: ${project.mainContact.email}`, projectDiv, 'p')
     const clickableProjectLink = `<a href=${site}/${project.slug}>${site}/${project.slug}</a>`
-    addElement(`URL: ${clickableProjectLink}`, projectDiv)
-    addElement(`Possible Problems: ${project.problems.join(" ")}`, projectDiv)
+    addElement(`URL: ${clickableProjectLink}`, projectDiv, 'p')
+    addElement(`Possible Problems: ${project.problems.join(" ")}`, projectDiv, 'p')
     projectDiv.append(document.createElement("br"))
   })
   document.body.append(projectDiv)
@@ -249,7 +246,6 @@ export function formatEmail(projects, greeting){ // filtered list of projects, j
 
 
 export async function sendNodeMail(to, subject, body){
-
   // This smtp was set up by Brown OIT unix team -- this will only work on Brown internal network (such as BKE)
   // Auth not needed at this time
   let EMAIL_SMTP = "smtp://mail-relay.brown.edu:25"
@@ -278,6 +274,5 @@ export async function sendNodeMail(to, subject, body){
   })
 
   console.debug("Message sent: %s", info.messageId)
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
   console.debug("Full info: \n", JSON.stringify(info))
 }
