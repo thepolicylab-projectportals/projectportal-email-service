@@ -30,8 +30,7 @@ export async function runEmailService() {
 
   //send out newly constructed email from previous step to designated contact
   const emails = await fetchEmailsFromRepo(repoOwner, repoName, accessToken)
-  const to = ["joshua_lu1@brown.edu"]
-  await sendNodeMail(to, `Project Portal Updates: ${process.env.site}'s ${process.env.emailType} Projects`, body);
+  await sendNodeMail(emails, `Project Portal Updates: ${process.env.site}'s ${process.env.emailType} Projects`, body);
 
 }
 
@@ -63,6 +62,7 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
   const getProjectsPath = 'content/project'
   const getContactsPath = 'content/contact'
   const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents`
+  let projectResults = []
 
   try {
     const projectsUrl = `${apiUrl}/${getProjectsPath}?ref=${process.env.branch}&media=raw`
@@ -83,8 +83,9 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
       })
     ])
 
-    if (Array.isArray(contactsResponse.data) && Array.isArray(projectsResponse.data)) {
+    const contactsMap = new Map()
 
+    if (contactsResponse.status === 200){
       const contactsContent = contactsResponse.data
         .filter(file => file.name.endsWith('.json'))
         .map(file => {
@@ -92,17 +93,19 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
           return axios.get(fileUrl).then(response => response.data)
         })
 
-      const contactsContentArray = await Promise.all(contactsContent)
-      const contactsMap = new Map()
+      const contactsContentReturned = await Promise.all(contactsContent)
+
       let index = 0
       contactsResponse.data.forEach((file) => {
         if (file.name.endsWith('.json')) {
           const fileName = file.name
-          const fileData = contactsContentArray[index++]
+          const fileData = contactsContentReturned[index++]
           contactsMap.set(fileName.replace(/\.json$/, ''), fileData)
         }
       })
+    }
 
+    if (projectsResponse.status === 200){
       const projectsContent = projectsResponse.data.map(file => {
         const fileUrl = file.download_url
         return axios.get(fileUrl).then(response => ({
@@ -110,25 +113,23 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
           slug: file.name.replace(/\.json$/, ''),
         }))
       })
-      const projectsContentArray = await Promise.all(projectsContent)
+      const projectsContentReturned = await Promise.all(projectsContent)
 
-      let projectResults = []
-      for (let i = 0; i < projectsResponse.data.length; i++) {
-        const projectContent = projectsContentArray[i]
+      projectsContentReturned.forEach(projectContent =>
+      {
         const contactSlug = projectContent.mainContact
         projectContent.mainContact = contactsMap.get(contactSlug)
+        if (contactsMap.has(contactSlug)) {
+          projectContent.mainContact = contactsMap.get(contactSlug)
+        }
         projectResults.push(projectContent)
-      }
-
-      return projectResults
-
-    } else {
-      console.error(`No files found in the folder ${repoOwner}/${repoName}`)
+      })
     }
+
   } catch (error) {
     console.error('Error with fetchFilesFromRepo():', error)
   }
-  return []
+  return projectResults
 }
 
 export function filterStale(projects) {
