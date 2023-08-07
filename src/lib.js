@@ -1,6 +1,6 @@
 const axios = require('axios')
 require('dotenv').config()
-import {subDays, isAfter, differenceInDays} from "date-fns";
+import {subDays, subMonths, isAfter, differenceInDays, format, parseISO} from "date-fns";
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const nodemailer = require("nodemailer");
@@ -17,11 +17,11 @@ export async function runEmailService() {
   switch (process.env.emailType) {
     case "Stale":
       filtered = filterStale(projects);
-      greeting = ""
+      greeting = `We hope this email finds you well. As part of our email update, we are pleased to provide you with a status report on stale projects at ${process.env.site}`
       break;
     case "New":
       filtered = filterNew(projects);
-      greeting = "";
+      greeting = `We hope this email finds you well. As part of our email update, we are pleased to provide you with a status report on new projects at ${process.env.site}`
       break;
   }
 
@@ -30,7 +30,13 @@ export async function runEmailService() {
 
   //send out newly constructed email from previous step to designated contact
   const emails = await fetchEmailsFromRepo(repoOwner, repoName, accessToken)
-  await sendNodeMail(emails, `Project Portal Updates: ${process.env.site}'s ${process.env.emailType} Projects`, body);
+
+  let emailTitle = `${process.env.site} ${process.env.emailType} Projects Update`
+
+  if (filtered.length === 0){
+    emailTitle = `${process.env.site} ${process.env.emailType} Projects Update: No ${process.env.emailType} Projects`
+  }
+  await sendNodeMail(emails, emailTitle, body);
 
 }
 
@@ -194,9 +200,14 @@ export function filterStale(projects) {
   return filtered
 }
 
-export function filterNew(projects, numberOfDaysBack){
+export function filterNew(projects){
   // projects is an array of objects; numberOfDaysBack is the number of days to search back from day of email
-  return projects.filter(project => parse(project.created) < subDays(parse(project.created), numberOfDaysBack))
+  const todayDate = new Date()
+
+  if (process.env.subMonths){
+    return projects.filter(project => isAfter(parseISO(project.created), subMonths(todayDate, parseInt(process.env.subMonths))))
+  }
+  return projects.filter(project => isAfter(parseISO(project.created), subDays(todayDate, parseInt(process.env.subDays))))
 }
 
 export function formatEmail(projects, greeting){ // filtered list of projects, json
@@ -223,17 +234,26 @@ export function formatEmail(projects, greeting){ // filtered list of projects, j
   addElement("Projects", projectDiv, 'h2')
   if (projects.length === 0){
     //No projects text
-    addElement("No projects found", projectDiv, 'p')
+    addElement(`No ${process.env.emailType} Projects`, projectDiv, 'p')
   }
 
   //Projects content
   projects.forEach((project) => {
     addElement(`Project Title: ${project.title}`, projectDiv, 'h4')
-    addElement(`Contact Name: ${project.mainContact.name}`, projectDiv, 'p')
-    addElement(`Contact Email: ${project.mainContact.email}`, projectDiv, 'p')
+    if (project.mainContact.name !== undefined){
+      addElement(`Contact Name: ${project.mainContact.name}`, projectDiv, 'p')
+    }
+    if (project.mainContact.email !== undefined){
+      addElement(`Contact Email: ${project.mainContact.email}`, projectDiv, 'p')
+    }
     const clickableProjectLink = `<a href=${site}/${project.slug}>${site}/${project.slug}</a>`
     addElement(`URL: ${clickableProjectLink}`, projectDiv, 'p')
-    addElement(`Possible Problems: ${project.problems.join(" ")}`, projectDiv, 'p')
+    if (process.env.emailType === "Stale"){
+      addElement(`Possible Problems: ${project.problems.join(" ")}`, projectDiv, 'p')
+    }
+    if (process.env.emailType === "New"){
+      addElement(`Date Created: ${new Date(project.created).toString()}`, projectDiv, 'p')
+    }
     projectDiv.append(document.createElement("br"))
   })
   document.body.append(projectDiv)
