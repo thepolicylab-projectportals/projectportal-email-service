@@ -201,7 +201,7 @@ export function filterStale(projects) {
 }
 
 export function filterNew(projects){
-  // projects is an array of objects; numberOfDaysBack is the number of days to search back from day of email
+  // projects is an array of objects
   const todayDate = new Date()
 
   if (process.env.subMonths){
