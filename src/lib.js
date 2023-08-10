@@ -13,14 +13,15 @@ export async function runEmailService() {
   const projects = await fetchFilesFromRepo(repoOwner, repoName, accessToken)
   let filtered;
   let greeting;
+  const todayDate = new Date()
   // identify desired projects
   switch (process.env.emailType) {
     case "Stale":
-      filtered = filterStale(projects);
+      filtered = filterStale(projects, todayDate);
       greeting = `We hope this email finds you well. As part of our email update, we are pleased to provide you with a status report on stale projects at ${process.env.site}`
       break;
     case "New":
-      filtered = filterNew(projects);
+      filtered = filterNew(projects, todayDate);
       greeting = `We hope this email finds you well. As part of our email update, we are pleased to provide you with a status report on new projects at ${process.env.site}`
       break;
   }
@@ -138,8 +139,7 @@ async function fetchFilesFromRepo(repoOwner, repoName, accessToken) {
   return projectResults
 }
 
-export function filterStale(projects) {
-  const todayDate = new Date()
+export function filterStale(projects, todayDate) {
   const filtered = []
 
   projects.forEach((project) => {
@@ -200,9 +200,8 @@ export function filterStale(projects) {
   return filtered
 }
 
-export function filterNew(projects){
+export function filterNew(projects, todayDate){
   // projects is an array of objects
-  const todayDate = new Date()
 
   if (process.env.subMonths){
     return projects.filter(project => isAfter(parseISO(project.created), subMonths(todayDate, parseInt(process.env.subMonths))))
