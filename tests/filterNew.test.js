@@ -3,12 +3,13 @@ import {filterNew} from "../src/lib";
 
 describe('filterNew()', () => {
 
-  const date1 = subMonths(new Date(), 3).toISOString()
-  const date2 = subMonths(new Date(), 1).toISOString()
-  const date3 = subWeeks(new Date(), 2).toISOString()
-  const date4 = subDays(new Date(), 2).toISOString()
-  const date5 = subDays(new Date(), 1).toISOString()
   const todayDate = new Date()
+  const date1 = subMonths(todayDate, 3).toISOString()
+  const date2 = subMonths(todayDate, 1).toISOString()
+  const date3 = subWeeks(todayDate, 2).toISOString()
+  const date4 = subDays(todayDate, 2).toISOString()
+  const date5 = subDays(todayDate, 1).toISOString()
+
 
 
   it('returns filtered projects that are new based on subDays', () => {
