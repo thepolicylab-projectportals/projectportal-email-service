@@ -50,7 +50,7 @@ By combining push event and pull request triggers in the workflow, this helps up
 Refer to https://github.com/thepolicylab-projectportals/projectportal-email-service/actions for examples of past triggered action workflows. 
 
 
-#### Create a Kubernetes Deployment
+### Create a Kubernetes Deployment
 This step takes place in the https://github.com/brown-ccv/k8s-deploy-bke repository. Please refer to the `/tpl-projectportal` subfolder.
 
 A Kubernetes deployment is a way to define and manage the deployment of our email service within a Kubernetes cluster. To set up a Kubernetes deployment, we define a `<SITE>-<EMAIL_SERVICE_TYPE>-cronjob.yml` configuration file that describes the type of application we are leveraging on Kubernetes. In this case, we are implementing a CronJob, which is automatically scheduled to run every day at 12:00. The configuration file also specifies the specific version of the image we will use. Refer to any of the pre-existing cronjob.yml files for a template on creating a new one. 
@@ -63,7 +63,7 @@ A personal access token is required for the Kubernetes Deployment. It is require
 Github offers the ***[fine-grained personal access token](https://github.com/settings/personal-access-tokens/new)*** which allows you to set up select access to repositories. 
 When it comes to selecting the permissions for this access token, read-only access for **Contents** and **Metadata** (automatically selected when selecting Contents) will suffice. Once the token is generated, please store the token somewhere as you will need it later on. 
 
-##### Regcred Secret
+##### 1. Regcred Secret
 The GitHub Container Registry (GHCR), which has the namespace `https://ghcr.io`, stores container images within your organization or personal account, and allows you to associate an image with a repository. Although GHCR is a public container registry, it requires authentication to access and pull container images from it. This makes sure that only authorized users can access and interact with container images stored in GHCR. 
 
 To authenticate your identity, we use a personal access token that we call `regcred `. 
@@ -90,7 +90,7 @@ In order to update the expiring secret, you must first delete the existing secre
 
 
 
-##### Injected Env Secret
+##### 2. Injected Env Secret
 A personal access token is also required to authenticate the email-service when it uses the Github API to grab the content from the respective content repository. Refer to the tpl-projectportal folder in the [Brown Kubernetes Engine (BKE) Deployments repository](https://github.com/brown-ccv/k8s-deploy-bke) and find the `/secrets` folder within the tpl-projectportal subfolder. The personal access token used is also the same fine-grained personal access token generated to create the Regcred secret. Please use the same secret in this case. 
 
 We use the following simple format to encrypt an env file that contains the personal access token which will be used by the email script. Refer to https://github.com/brown-ccv/k8s-deploy-bke/tree/feat-xnat-conjob-prod#handling-secrets for further instructions on how to set up SOPs encryption credentials and the commands required to encrypt and decrypt these secrets env files. 
@@ -123,5 +123,5 @@ secretGenerator:
 This section defines secret generators, which are used to create Kubernetes secrets from enviornment variable files found in the `/secrets` folder.
 It is important to identify each secret has a specific name: `env`, `nc-env`, `satx-env` as this identifies which secret will be used by which email-service. 
 
-#### Deploying the email-service
+### Deploying the email-service
 This [script](https://github.com/brown-ccv/k8s-deploy-bke/blob/main/deploy.sh) helps to automate the deploy process of the email-service. Simply run `./deploy.sh` and the script will run through a wizard to help you deploy the right service in the right cluster. 
