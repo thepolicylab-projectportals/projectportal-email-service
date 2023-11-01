@@ -269,7 +269,7 @@ export function formatEmail(projects, greeting){ // filtered list of projects, j
 export async function sendNodeMail(to, subject, body){
   // This smtp was set up by Brown OIT unix team -- this will only work on Brown internal network (such as BKE)
   // Auth not needed at this time
-  let EMAIL_SMTP = "smtp://mail-relay.brown.edu:25"
+  let EMAIL_SMTP = "smtp://regmail.brown.edu:25"
   let transporter
   // Initiate transporter
   if (EMAIL_SMTP !== undefined) {
