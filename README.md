@@ -28,7 +28,7 @@ The Docker image is created from a Dockerfile, a human-readable text file simila
 
 
 ### Build and Push Image to Registry `.github/workflows/build-docker.yml`
-This action workflow automates the process of building and pushing the Docker image to a container registry (which has to be done everytime you want to initialize a new Docker image or update an existing one). 
+This [action workflow](.github/workflows/build-docker.yml) automates the process of building and pushing the Docker image to a container registry (which has to be done everytime you want to initialize a new Docker image or update an existing one). 
 
 Building the image packages the image based on directions provided in the `Dockerfile`. The image is then uploaded by pushing it to a container registry, which is a repository for storing and managing Docker images. The Brown CCV team previously relied on the `ghcr.io` registry.
 
