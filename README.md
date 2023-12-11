@@ -58,7 +58,7 @@ By combining push event and pull request triggers in the workflow, this helps up
 
 ### Create a Kubernetes Deployment
 
-A Kubernetes deployment is a way to define and manage the deployment of our email service within a Kubernetes cluster. To set up a Kubernetes deployment, we define a `cronjob.yml` configuration file that describes the type of application we are leveraging on Kubernetes. In this case, we are implementing a CronJob deployment, which is automatically scheduled to run every 10 minutes. The configuration file also specifies the specific version of the image we will use. 
+A Kubernetes deployment is a way to define and manage the deployment of our email service within a Kubernetes cluster. To set up a Kubernetes deployment, we define a `cronjob.yml` manifest that describes the type of application we are leveraging on Kubernetes. Please refer to the [/src/manifests/](./src/manifests) folder for mockups of the `cronjob.yml` manifest for both New Email Service and Stale Email Service. 
 
 
 ### Authentication with Regcred and other secrets 

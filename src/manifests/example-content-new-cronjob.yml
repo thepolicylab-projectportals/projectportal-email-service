@@ -28,6 +28,7 @@ spec:
                   value: 'https://www.example-site.com'
                 - name: branch
                   value: main
+                # The subMonths or subDays field is required for the Stale Email to determine the status of emails since the last checkin
                 - name: subMonths
                   value: 1
               envFrom:
