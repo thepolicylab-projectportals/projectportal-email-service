@@ -245,7 +245,7 @@ export function formatEmail(projects, greeting){ // filtered list of projects, j
     if (project.mainContact.email !== undefined){
       addElement(`Contact Email: ${project.mainContact.email}`, projectDiv, 'p')
     }
-    const clickableProjectLink = `<a href=${site}/${project.slug}>${site}/${project.slug}</a>`
+    const clickableProjectLink = `<a href=${site}/project/${project.slug}>${site}/project/${project.slug}</a>`
     addElement(`URL: ${clickableProjectLink}`, projectDiv, 'p')
     if (process.env.emailType === "Stale"){
       addElement(`Possible Problems: ${project.problems.join(" ")}`, projectDiv, 'p')
