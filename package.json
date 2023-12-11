@@ -2,6 +2,7 @@
   "name": "projectportal-email-service",
   "version": "1.0.0",
   "main": "index.js",
+  "license": "MIT",
   "scripts": {
     "test": "jest",
     "package": "rollup -c",

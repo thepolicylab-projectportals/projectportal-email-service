@@ -4,26 +4,26 @@ import {filterNew} from "../src/lib";
 describe('filterNew()', () => {
 
   const todayDate = new Date()
-  const date1 = subMonths(todayDate, 3).toISOString()
-  const date2 = subMonths(todayDate, 1).toISOString()
-  const date3 = subWeeks(todayDate, 2).toISOString()
-  const date4 = subDays(todayDate, 2).toISOString()
-  const date5 = subDays(todayDate, 1).toISOString()
+  const threeMonthsAgo = subMonths(todayDate, 3).toISOString()
+  const oneMonthAgo = subMonths(todayDate, 1).toISOString()
+  const twoWeeksAgo = subWeeks(todayDate, 2).toISOString()
+  const twoDaysAgo = subDays(todayDate, 2).toISOString()
+  const oneDayAgo = subDays(todayDate, 1).toISOString()
 
 
 
   it('returns filtered projects that are new based on subDays', () => {
     const projects = [
-      { created: date3 },
-      { created: date4 },
-      { created: date5 },
+      { created: twoWeeksAgo },
+      { created: twoDaysAgo },
+      { created: oneDayAgo },
     ]
 
     process.env.subDays = '3'
     const filteredProjects = filterNew(projects, todayDate)
     const expectedProjects = [
-      { created: date4 },
-      { created: date5 },
+      { created: twoDaysAgo },
+      { created: oneDayAgo },
     ]
 
     expect(filteredProjects).toEqual(expectedProjects)
@@ -31,9 +31,9 @@ describe('filterNew()', () => {
 
   it('returns no projects when none are new based on subDays', () => {
     const projects = [
-      { created: date3 },
-      { created: date4 },
-      { created: date5 },
+      { created: twoWeeksAgo },
+      { created: twoDaysAgo },
+      { created: oneDayAgo },
     ]
 
     process.env.subDays = '1'
@@ -45,16 +45,16 @@ describe('filterNew()', () => {
 
   it('returns filtered projects that are new based on subMonths', () => {
     const projects = [
-      { created: date1 },
-      { created: date2 },
-      { created: date3 },
+      { created: threeMonthsAgo },
+      { created: oneMonthAgo },
+      { created: twoWeeksAgo },
     ]
 
     process.env.subMonths = '2'
     const filteredProjects = filterNew(projects, todayDate)
     const expectedProjects = [
-      { created: date2 },
-      { created: date3 },
+      { created: oneMonthAgo },
+      { created: twoWeeksAgo },
     ]
 
     expect(filteredProjects).toEqual(expectedProjects)
