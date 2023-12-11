@@ -1,0 +1,38 @@
+# MOCKUP OF CRONJOB MANIFEST THAT FILTERS FOR NEW PROJECTS
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: example-content-stale-email-service
+  labels:
+    app: example-content-stale-email-service
+spec:
+  #Runs at 00:00 on 1st day of every month
+  schedule: "0 0 1 * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: example-content-stale-email-service
+              image: ghcr.io/thepolicylab-projectportals/projectportal-email-service:v1.0.0
+              env:
+                - name: repoOwner
+                  value: 'thepolicylab-projectportals'
+                - name: repoName
+                  value: 'example-content'
+                - name: emailType
+                  value: Stale
+                - name: site
+                  value: 'https://www.example-site.com'
+                - name: branch
+                  value: main
+              envFrom:
+                - secretRef:
+                    name: env
+              imagePullPolicy: Always
+          imagePullSecrets:
+            - name: regcred
+          restartPolicy: OnFailure
+      backoffLimit: 5

@@ -16,6 +16,22 @@ When a CronJob is created or updated, it calculates the next time it should run 
 To check current jobs, use ```kubectl get jobs``` and to check current pods running, use ```kubectl get pods```
 
 
+## Breakdown of email-service
+
+The email service script is designed to fetch data from a GitHub project portal repository. The script filters and processes this data to create email updates on either stale or new projects, depending on the email type specified in the cronjob manifest. 
+
+The resulting emails contain a list of projects that are identified to meet the requirements of either "stale" or "new" based on the following requirements:
+
+#### Stale Project Qualifications
+1. Open Projects with Past Opportunity Closing Date
+2. Open Projects with Past Start Date
+3. Open Projects with Last Modification Over 90 Days Ago
+4. Open Projects with Past End Date
+5. Ongoing Projects with Last Modification Over 90 Days Ago
+6. Ongoing Projects with Past End Date
+
+#### New Project Qualifications
+1. Any project that was created after the last scheduled run of the 'New Project' email-service are categorized as new projects.
 
 
 ## Steps to deploying the projectportal-email-service on Kubernetes 
