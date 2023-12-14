@@ -69,6 +69,7 @@ The following will outline the steps taken by the Brown CCV team to configure au
 
 The GitHub Container Registry (GHCR), which has the namespace `https://ghcr.io`, stores container images within your organization or personal account, and allows you to associate an image with a repository. Although GHCR is a public container registry, it requires authentication to access and pull container images from it. This makes sure that only authorized users can access and interact with container images stored in GHCR. 
 
+#### Regcred Secret
 To authenticate your identity, we use a personal access token that we call `regcred `. 
 ```
  imagePullSecrets:
@@ -83,3 +84,26 @@ The following command was used to create the regcred secret
 kubectl create secret docker-registry regcred --docker-server=ghcr.io --docker-username=USERNAME --docker-password=PERSONAL_ACCESS_TOKEN
 ```
 `kubectl create secret docker-registry` specifies the type of secret we want, which in this case, is of type `docker-registry`. This is because the credentials are used to authenticate with the Docker registry. This command will store the newly created `regcred` secret in the current context's namespace. Refer to the top of this README for information on how to determine what namespace you are in. The secret is base64-encoded, ensuring no sensitive info is stored in plain text.  
+
+
+#### Authentication secret
+A perosnal access token is also required for authentication by the email-service when it uses the Github API to grab the content the respective Github repository. This secret is associated with the cronjob manifest mentioned earlier in thsi README. Please refer to the manifest mockups found in [/src/manifests/](./src/manifests) for examples of how they are setup. 
+
+###### Kustomization.yaml
+A The kustomization.yaml file is required to customize the Kubernetes manifest. In our case, we use it to manage and apply the inject env secret that you have generated. 
+
+```
+resources:
+  - example-content-stale-cronjob.yml
+  - example-content-new-cronjob.yml
+```
+
+This code excerpt is from the Kustomiation.yaml found in [/src/manifests/](./src/manifests). The `resources` section specifies the Kubernetes resources that we want to be "customized" by this Kustomization file. In other words the secrets we generate from the encrypted secret.env files will be applied to the resources that we list here. 
+```
+secretGenerator:
+  - name: env
+    envs:
+      - secrets/secrets.env
+```
+This section defines secret generators, which are used to create Kubernetes secrets from environnment variable files found in a `/secrets` folder that would appear alongside the kustomization file and cronjob manifests.
+It is important to identify each secret has a specific name, in this case, `env`. You will see in the manifest that this specific name is referenced when fetching the secret. 
