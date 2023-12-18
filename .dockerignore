@@ -1,0 +1,7 @@
+node_modules/
+.idea/
+README.md
+test.js
+lib/
+.gitignore
+tests/
