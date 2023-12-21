@@ -1,0 +1,41 @@
+# MOCKUP OF CRONJOB MANIFEST THAT FILTERS FOR NEW PROJECTS
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: example-content-new-email-service
+  labels:
+    app: example-content-new-email-service
+spec:
+  #Runs at 00:00 on 1st day of every month
+  schedule: "0 0 1 * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: example-content-new-email-service
+              image: ghcr.io/thepolicylab-projectportals/projectportal-email-service:v1.0.0
+              env:
+                - name: repoOwner
+                  value: 'thepolicylab-projectportals'
+                - name: repoName
+                  value: 'example-content'
+                - name: emailType
+                  value: New
+                - name: site
+                  value: 'https://www.example-site.com'
+                - name: branch
+                  value: main
+                # The subMonths or subDays field is required for the Stale Email to determine the status of emails since the last checkin
+                - name: subMonths
+                  value: 1
+              envFrom:
+                - secretRef:
+                    name: env
+              imagePullPolicy: Always
+          imagePullSecrets:
+            - name: regcred
+          restartPolicy: OnFailure
+      backoffLimit: 5
